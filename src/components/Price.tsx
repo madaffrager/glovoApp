@@ -4,6 +4,8 @@ import React, { useEffect, useState } from "react";
 import IconArrowRight from "@/assets/svg/IconArrowRight";
 import IconArrowLeft from "@/assets/svg/IconArrowLeft";
 import { Product } from "@/types/types";
+import { useCartStore } from "@/utils/store";
+import { toast } from "react-toastify";
 
 
 const Price = ({ product }: {product:Product}) => {
@@ -12,18 +14,34 @@ const Price = ({ product }: {product:Product}) => {
   const [selected, setSelected] = useState(0);
 
   useEffect(() => {
-    if(product.options?.length){
-      setTotal(
-        quantity * (product.price + product.options[selected].additionalPrice)
-      );
+    if (product.options && product.options.length) {
+      setTotal((quantity * product.options[selected].additionalPrice) + (quantity * product.price));
+    }
+    else{
+      setTotal((quantity * product.price));
+
     }
   }, [quantity, selected, product.options, product.price]);
+  const {addToCart} = useCartStore();
+  const handleCart = ()=>{
+    addToCart(
+      {    id: product.id,
+        title: product.title,
+        img: product.img,
+        price: total,
+        ...(product.options?.length && ({optionTitle: product.options[selected].title})),
+        quantity: quantity}
+      )
+
+      toast.success(`${product.title} is added to Cart!`);
+    }
+
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="text-2xl font-bold">MAD {total}</h2>
+      <h2 className="text-2xl font-bold">MAD {Number(total).toFixed(2)}</h2>
       {/* OPTIONS CONTAINER */}
-      {product.options?.length ===0 ?<span>No options available</span>:
+      {product.options?.length ===0 ?<span></span>:
       <div className="flex gap-4">
         {product.options?.map((option, index) => (
           <button
@@ -59,7 +77,7 @@ const Price = ({ product }: {product:Product}) => {
           </div>
         </div>
         {/* CART BUTTON */}
-        <button className="uppercase w-56 bg-red-500 text-white p-3 ring-1 ring-red-500">
+        <button className="uppercase w-56 bg-red-500 text-white p-3 ring-1 ring-red-500" onClick={()=>handleCart()}>
           Add to Cart
         </button>
       </div>

@@ -31,3 +31,12 @@ export type Menu = {
     optionTitle?: string;
     quantity: number;
   };
+  export type Cart = {
+    products: CartItem[];
+    totalItems: number;
+    totalPrice: number;
+  };  
+  export type CartActions = {
+    addToCart:(item:CartItem)=> void;
+    removeFromCart:(item:CartItem)=> void;
+  }
